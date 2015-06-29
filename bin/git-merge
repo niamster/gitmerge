@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require 'commander/import'
+
+require 'git-merge'
+
+program :name, 'git-merge'
+program :version, GitMerge::VERSION.to_s
+program :description, 'A helper tool to easily block particular GIT commits during the merge'
+
+global_option('-d', '--debug') { GitMerge::Logger.level = Logger::DEBUG }
+
+command :block do |c|
+  c.syntax = 'git-merge block [options] commits...'
+  c.description = 'Blocks particular commits'
+  c.option '-b', '--branch BRANCH', String, 'Branch in which block commits [HEAD by default]'
+  c.option '-r', '--repo PATH', String, 'Path to the GIT repository [CWD by default]'
+  c.action do |args, options|
+    options.default branch: nil, repo: Dir.getwd
+
+    repo = GitMerge::Repo.new options.repo
+    block = GitMerge::Block.new repo
+    block.block hashes: args, head: options.branch
+  end
+end
