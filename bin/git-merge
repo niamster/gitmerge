@@ -11,7 +11,7 @@ program :description, 'A helper tool to easily block particular GIT commits duri
 global_option('-d', '--debug') { GitMerge::Logger.level = Logger::DEBUG }
 
 command :block do |c|
-  c.syntax = 'git-merge block [options] commits...'
+  c.syntax = 'git-merge block [options] <commit> [<commit>...]'
   c.description = 'Blocks particular commits'
   c.option '-b', '--branch BRANCH', String, 'Branch in which block commits [HEAD by default]'
   c.option '-r', '--repo PATH', String, 'Path to the GIT repository [CWD by default]'
@@ -19,7 +19,7 @@ command :block do |c|
     options.default branch: nil, repo: Dir.getwd
 
     repo = GitMerge::Repo.new options.repo
-    block = GitMerge::Block.new repo
-    block.block hashes: args, head: options.branch
+    block = GitMerge::Block.new repo, branch: options.branch
+    block.block args
   end
 end

@@ -10,4 +10,7 @@ module GitMerge
       super "Head '#{head}' is not local"
     end
   end
+
+  class DirtyIndex < StandardError
+  end
 end
