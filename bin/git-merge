@@ -23,3 +23,17 @@ command :block do |c|
     block.block args
   end
 end
+
+command :merge do |c|
+  c.syntax = 'git-merge merge [options] <head>'
+  c.description = 'Merge head excluding blocked commits'
+  c.option '-b', '--branch BRANCH', String, 'Branch into which perform the merge [HEAD by default]'
+  c.option '-r', '--repo PATH', String, 'Path to the GIT repository [CWD by default]'
+  c.action do |args, options|
+    options.default branch: nil, repo: Dir.getwd
+
+    repo = GitMerge::Repo.new options.repo
+    merge = GitMerge::Merge.new repo, branch: options.branch
+    merge.merge args.first
+  end
+end

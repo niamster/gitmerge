@@ -11,6 +11,9 @@ module GitMerge
     end
   end
 
+  class MergeConflict < StandardError
+  end
+
   class DirtyIndex < StandardError
   end
 end
