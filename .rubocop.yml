@@ -73,3 +73,6 @@ Style/GlobalVars:
 
 Style/FileName:
   Enabled: false
+
+Style/ParallelAssignment:
+  Enabled: false

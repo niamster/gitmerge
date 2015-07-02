@@ -9,7 +9,7 @@ module GitMerge
       @head = @repo.get_head branch
     end
 
-    def get_blocked
+    def fetch_blocked
       index = @repo.get_index @head
       obj = index[BLOCKED]
       return [] unless obj
@@ -43,7 +43,7 @@ module GitMerge
         desc = commit.message.strip
         desc = desc[0..MAX_LEN] + ' ...' if desc.length > MAX_LEN
         idx = desc.index SEP
-        desc = desc[0..idx-1] + '...' if idx
+        desc = desc[0...idx] + '...' if idx
         message << "#{commit.oid} -- #{desc}"
       end.join SEP
     end
@@ -58,7 +58,7 @@ module GitMerge
     end
 
     def block_commits(commits)
-      blocked = get_blocked
+      blocked = fetch_blocked
       unblocked = filter_blocked commits, blocked
       if unblocked.length == 0
         Logger.info 'All commits already blocked, nothing to do'

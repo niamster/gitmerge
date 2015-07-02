@@ -6,7 +6,7 @@ module GitMerge
     }
     SEP = "\n"
 
-    def initialize(repo, from, branch: nil)
+    def initialize(repo, branch: nil)
       @repo = repo
       @branch = branch
       @head = @repo.get_head @branch
@@ -17,7 +17,7 @@ module GitMerge
       commits = @repo.commit_list @from, @head
       return unless commits
       block = GitMerge::Block.new @repo, branch: @branch
-      blocked = block.get_blocked
+      blocked = block.fetch_blocked
       merge_commits commits, blocked
     ensure
       @from = nil
@@ -42,13 +42,6 @@ module GitMerge
       merge_normal pcommit
     end
 
-    def merge_info(commit)
-      their = @repo.rev commit
-      base = @repo.repo.merge_base @head.target, their
-      base = @repo.rev base
-      [base, their]
-    end
-
     def write_marks(marks, meta)
       marks.each do |mark, path|
         File.open(path, 'w') do |f|
@@ -66,15 +59,14 @@ module GitMerge
     def mark_merge(commit, index)
       marks = MERGE_MARKS.each_with_object({}) do |(mark, file), storage|
         storage[mark] = File.join @repo.path, '.git', file
-        fail MergeInProgress if File.exists? storage[mark]
+        fail MergeInProgress if File.exist? storage[mark]
       end
       conflicts = index.conflicts.each_with_object(Set.new) do |conflict, storage|
         storage << conflict[:ancestor][:path]
       end.to_a
-
       meta = {
         msg: msg(commit, conflicts),
-        head: commit
+        head: commit,
       }
       write_marks marks, meta
     end
@@ -87,18 +79,16 @@ module GitMerge
       end
       @repo.checkout_index index, @head
       mark_merge commit, index
-
       Logger.info "Working directory #{@repo.path} was updated for manual merge conflict resolution"
-      Logger.info "please step into, resolve conflict, stage and commit resolved entries (via `git add` and `git commit`)."
+      Logger.info "please step into, resolve conflict, stage and commit" \
+                  "resolved entries (via `git add` and `git commit`)."
       Logger.info "Afterwards you might need to run git-merge again to finish the merge."
       exit
     end
 
     def msg(commit, conflicts=nil)
       name = commit
-      if @from.target.oid == commit
-        name = @from.name
-      end
+      name = @from.name if @from.target.oid == commit
       msg = ["Merge #{name} into #{@head.name}"]
       if conflicts
         msg << '# Conflicts:'
@@ -110,7 +100,7 @@ module GitMerge
     end
 
     def do_merge(commit, favor=:normal)
-      base, their = merge_info commit
+      base, their = @repo.merge_info @head, commit
       our = @head.target.tree
       index = our.merge their.tree, base.tree, favor: favor
       resolve_conflict commit, index if index.conflicts?

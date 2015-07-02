@@ -81,6 +81,13 @@ module GitMerge
       walker.each_oid.to_a
     end
 
+    def merge_info(head, commit)
+      their = rev commit
+      base = @repo.merge_base head.target, their
+      base = rev base
+      [base, their]
+    end
+
     private
 
     def do_commit(head, options)
@@ -92,10 +99,9 @@ module GitMerge
 
       Rugged::Commit.create @repo, options
 
-      if checkout
-        Logger.warn 'Forcing checkout after commit'
-        @repo.checkout_head strategy: :force
-      end
+      return unless checkout
+      Logger.warn 'Forcing checkout after commit'
+      @repo.checkout_head strategy: :force
     end
   end
 end

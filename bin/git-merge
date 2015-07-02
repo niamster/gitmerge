@@ -35,7 +35,7 @@ command :merge do |c|
     from = args.first
 
     repo = GitMerge::Repo.new options.repo
-    merge = GitMerge::Merge.new repo, from, branch: options.branch
+    merge = GitMerge::Merge.new repo, branch: options.branch
     merge.merge! from
   end
 end
