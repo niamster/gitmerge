@@ -35,14 +35,15 @@ module GitMerge
       oid = write_blocked blocked
       index = @repo.get_index @head
       index.add path: BLOCKED, oid: oid, mode: 0100644
-
       @repo.commit @head, index, message
     end
 
     def mk_message(blocked)
       blocked.each_with_object(['Blocking commits: ']) do |commit, message|
-        desc = commit.message.chomp
+        desc = commit.message.strip
         desc = desc[0..MAX_LEN] + ' ...' if desc.length > MAX_LEN
+        idx = desc.index SEP
+        desc = desc[0..idx-1] + '...' if idx
         message << "#{commit.oid} -- #{desc}"
       end.join SEP
     end
