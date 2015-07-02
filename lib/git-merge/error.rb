@@ -1,19 +1,31 @@
 module GitMerge
-  class InvalidCommit < StandardError
+  class GitMergeError < StandardError
+  end
+
+  class InvalidCommit < GitMergeError
     def initialize(commit)
       super "Invalid commit '#{commit}'"
     end
   end
 
-  class NotLocalHead < StandardError
+  class InvalidHead < GitMergeError
+    def initialize(head)
+      super "Invalid head '#{head}'"
+    end
+  end
+
+  class NotLocalHead < GitMergeError
     def initialize(head)
       super "Head '#{head}' is not local"
     end
   end
 
-  class MergeConflict < StandardError
+  class MergeConflict < GitMergeError
   end
 
-  class DirtyIndex < StandardError
+  class MergeInProgress < GitMergeError
+  end
+
+  class DirtyIndex < GitMergeError
   end
 end

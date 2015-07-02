@@ -17,10 +17,11 @@ command :block do |c|
   c.option '-r', '--repo PATH', String, 'Path to the GIT repository [CWD by default]'
   c.action do |args, options|
     options.default branch: nil, repo: Dir.getwd
+    hashes = args
 
     repo = GitMerge::Repo.new options.repo
     block = GitMerge::Block.new repo, branch: options.branch
-    block.block args
+    block.block! hashes
   end
 end
 
@@ -31,9 +32,10 @@ command :merge do |c|
   c.option '-r', '--repo PATH', String, 'Path to the GIT repository [CWD by default]'
   c.action do |args, options|
     options.default branch: nil, repo: Dir.getwd
+    from = args.first
 
     repo = GitMerge::Repo.new options.repo
-    merge = GitMerge::Merge.new repo, branch: options.branch
-    merge.merge args.first
+    merge = GitMerge::Merge.new repo, from, branch: options.branch
+    merge.merge! from
   end
 end

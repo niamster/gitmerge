@@ -1,28 +1,29 @@
 module GitMerge
   class Merge
-    def initialize(repo, branch: nil)
+    MERGE_MARKS = {
+      head: 'MERGE_HEAD',
+      msg: 'MERGE_MSG',
+    }
+    SEP = "\n"
+
+    def initialize(repo, from, branch: nil)
       @repo = repo
       @branch = branch
       @head = @repo.get_head @branch
     end
 
-    def merge(from)
-      from = @repo.get_head from, false
-      commits = commit_list from
+    def merge!(from)
+      @from = @repo.get_head from, false
+      commits = @repo.commit_list @from, @head
       return unless commits
       block = GitMerge::Block.new @repo, branch: @branch
       blocked = block.get_blocked
       merge_commits commits, blocked
+    ensure
+      @from = nil
     end
 
     private
-
-    def commit_list(from)
-      walker = Rugged::Walker.new(@repo.repo)
-      walker.sorting Rugged::SORT_TOPO | Rugged::SORT_REVERSE
-      walker.push_range "#{@head.target.oid}..#{from.target.oid}"
-      walker.each_oid.to_a
-    end
 
     def merge_commits(commits, blocked)
       pcommit, pblock = nil, nil
@@ -48,12 +49,72 @@ module GitMerge
       [base, their]
     end
 
+    def write_marks(marks, meta)
+      marks.each do |mark, path|
+        File.open(path, 'w') do |f|
+          f << meta[mark]
+          f << SEP
+        end
+      end
+    rescue => e
+      Logger.fatal e
+      marks.each do |mark, path|
+        File.unlink path rescue nil
+      end
+    end
+
+    def mark_merge(commit, index)
+      marks = MERGE_MARKS.each_with_object({}) do |(mark, file), storage|
+        storage[mark] = File.join @repo.path, '.git', file
+        fail MergeInProgress if File.exists? storage[mark]
+      end
+      conflicts = index.conflicts.each_with_object(Set.new) do |conflict, storage|
+        storage << conflict[:ancestor][:path]
+      end.to_a
+
+      meta = {
+        msg: msg(commit, conflicts),
+        head: commit
+      }
+      write_marks marks, meta
+    end
+
+    def resolve_conflict(commit, index)
+      Logger.warn "Merge conflict when mergin #{commit} into #{@head.name}"
+      unless @repo.clean?
+        Logger.error "Can't resolve merge conflict in a dirty repository"
+        exit 1
+      end
+      @repo.checkout_index index, @head
+      mark_merge commit, index
+
+      Logger.info "Working directory #{@repo.path} was updated for manual merge conflict resolution"
+      Logger.info "please step into, resolve conflict, stage and commit resolved entries (via `git add` and `git commit`)."
+      Logger.info "Afterwards you might need to run git-merge again to finish the merge."
+      exit
+    end
+
+    def msg(commit, conflicts=nil)
+      name = commit
+      if @from.target.oid == commit
+        name = @from.name
+      end
+      msg = ["Merge #{name} into #{@head.name}"]
+      if conflicts
+        msg << '# Conflicts:'
+        conflicts.each do |conflict|
+          msg << "#       #{conflict}"
+        end
+      end
+      msg.join SEP
+    end
+
     def do_merge(commit, favor=:normal)
       base, their = merge_info commit
       our = @head.target.tree
       index = our.merge their.tree, base.tree, favor: favor
-      fail MergeConflict if index.conflicts?
-      @repo.commit @head, index, "Merging #{commit} into #{@head.name}", [their]
+      resolve_conflict commit, index if index.conflicts?
+      @repo.commit @head, index, msg(commit), [their]
       @head = @repo.get_head @branch
     end
 

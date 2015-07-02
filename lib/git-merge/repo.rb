@@ -1,6 +1,7 @@
 module GitMerge
   class Repo
     attr_accessor :repo
+    attr_accessor :path
 
     def initialize(path, user=nil)
       @path = path
@@ -26,6 +27,12 @@ module GitMerge
         Logger.debug "#{head} resolved as #{name}" unless head == name
         return ref
       end
+      fail InvalidHead, head
+    end
+
+    def checkout_index(index, head)
+      @repo.checkout_index index, strategy: :force
+      @repo.head = head.name
     end
 
     def rev(commit)
@@ -35,10 +42,11 @@ module GitMerge
     def get_index(head)
       index = @repo.index
       index.read_tree head.target.tree
+      index.reload
       index
     end
 
-    def clean
+    def clean?
       @repo.status do |file, status|
         next if status.include? :worktree_new
         return false
@@ -58,12 +66,27 @@ module GitMerge
       do_commit head, options
     end
 
+    def lookup_commits(hashes)
+      hashes.each_with_object([]) do |hash, commits|
+        commit = @repo.lookup hash
+        fail InvalidCommit, hash unless commit
+        commits << commit
+      end
+    end
+
+    def commit_list(from, to)
+      walker = Rugged::Walker.new(@repo)
+      walker.sorting Rugged::SORT_TOPO | Rugged::SORT_REVERSE
+      walker.push_range "#{to.target.oid}..#{from.target.oid}"
+      walker.each_oid.to_a
+    end
+
     private
 
     def do_commit(head, options)
       checkout = false
-      if @repo.head.target.oid == head.target.oid
-        fail DirtyIndex unless clean
+      if @repo.head.name == head.name
+        fail DirtyIndex unless clean?
         checkout = true
       end
 

@@ -17,8 +17,8 @@ module GitMerge
       obj.content.split SEP
     end
 
-    def block(hashes)
-      commits = lookup_commits hashes
+    def block!(hashes)
+      commits = @repo.lookup_commits hashes
       block_commits commits
     end
 
@@ -61,20 +61,12 @@ module GitMerge
       blocked = get_blocked
       unblocked = filter_blocked commits, blocked
       if unblocked.length == 0
-        Logger.info 'All commits already blocked'
+        Logger.info 'All commits already blocked, nothing to do'
         return
       end
       message = mk_message unblocked
       blocked += unblocked.map(&:oid)
       commit_blocked blocked, message
-    end
-
-    def lookup_commits(hashes)
-      hashes.each_with_object([]) do |hash, commits|
-        commit = @repo.repo.lookup hash
-        fail InvalidCommit, hash unless commit
-        commits << commit
-      end
     end
   end
 end
