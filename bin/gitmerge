@@ -21,7 +21,11 @@ command :block do |c|
 
     repo = GitMerge::Repo.new options.repo
     block = GitMerge::Block.new repo, branch: options.branch
-    block.block! hashes
+    begin
+      block.block! hashes
+    rescue GitMerge::GitMergeError
+      exit
+    end
   end
 end
 
@@ -36,6 +40,10 @@ command :merge do |c|
 
     repo = GitMerge::Repo.new options.repo
     merge = GitMerge::Merge.new repo, branch: options.branch
-    merge.merge! from
+    begin
+      merge.merge! from
+    rescue GitMerge::GitMergeError
+      exit
+    end
   end
 end

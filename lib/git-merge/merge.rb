@@ -59,7 +59,10 @@ module GitMerge
     def mark_merge(commit, index)
       marks = MERGE_MARKS.each_with_object({}) do |(mark, file), storage|
         storage[mark] = File.join @repo.path, '.git', file
-        fail MergeInProgress if File.exist? storage[mark]
+        if File.exist? storage[mark]
+          Logger.error "Another merge is not yet completed."
+          fail MergeInProgress
+        end
       end
       conflicts = index.conflicts.each_with_object(Set.new) do |conflict, storage|
         storage << conflict[:ancestor][:path]
@@ -75,7 +78,7 @@ module GitMerge
       Logger.warn "Merge conflict when mergin #{commit} into #{@head.name}"
       unless @repo.clean?
         Logger.error "Can't resolve merge conflict in a dirty repository"
-        exit 1
+        fail DirtyIndex
       end
       @repo.checkout_index index, @head
       mark_merge commit, index
@@ -83,7 +86,7 @@ module GitMerge
       Logger.info "please step into, resolve conflict, stage and commit" \
                   "resolved entries (via `git add` and `git commit`)."
       Logger.info "Afterwards you might need to run git-merge again to finish the merge."
-      exit
+      fail MergeConflict
     end
 
     def msg(commit, conflicts=nil)

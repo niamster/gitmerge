@@ -1,5 +1,9 @@
 module GitMerge
   class GitMergeError < StandardError
+    def initialize(msg=nil)
+      Logger.error msg if msg
+      super msg
+    end
   end
 
   class InvalidCommit < GitMergeError
