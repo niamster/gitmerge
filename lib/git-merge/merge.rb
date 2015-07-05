@@ -65,7 +65,11 @@ module GitMerge
         end
       end
       conflicts = index.conflicts.each_with_object(Set.new) do |conflict, storage|
-        storage << conflict[:ancestor][:path]
+        [:ours, :theirs, :ancestor].each do |who|
+          next unless conflict[who]
+          storage << conflict[who][:path]
+          break
+        end
       end.to_a
       meta = {
         msg: msg(commit, conflicts),
