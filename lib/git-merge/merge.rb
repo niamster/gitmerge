@@ -117,13 +117,13 @@ module GitMerge
 
     def merge_ours(commit)
       return unless commit
-      Logger.info "Merging #{commit} as ours"
+      Logger.debug "Merging #{commit} as ours"
       do_merge commit, :ours
     end
 
     def merge_normal(commit)
       return unless commit
-      Logger.info "Merging #{commit}"
+      Logger.debug "Merging #{commit}"
       do_merge commit
     end
   end
