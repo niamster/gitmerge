@@ -6,10 +6,11 @@ module GitMerge
 
     def initialize(repo, branch: nil)
       @repo = repo
-      @head = @repo.get_head branch
+      @branch = branch
     end
 
     def fetch_blocked
+      @head = @repo.get_head @branch
       index = @repo.get_index @head
       obj = index[BLOCKED]
       return [] unless obj
@@ -18,6 +19,7 @@ module GitMerge
     end
 
     def block!(hashes)
+      @head = @repo.get_head @branch
       commits = @repo.lookup_commits hashes
       block_commits commits
     end

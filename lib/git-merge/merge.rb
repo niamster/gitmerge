@@ -9,10 +9,10 @@ module GitMerge
     def initialize(repo, branch: nil)
       @repo = repo
       @branch = branch
-      @head = @repo.get_head @branch
     end
 
     def merge!(from)
+      @head = @repo.get_head @branch
       @from = @repo.get_head from, false
       commits = @repo.commit_list @from, @head
       return unless commits
