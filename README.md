@@ -1,5 +1,5 @@
 # About
-gitmerge(git-merge, git-block) is a helper utility that allows block particular commits during GIT merge.
+gitmerge is a helper utility that allows block particular commits during GIT merge.
 Why one might need that? This is mainly useful when merging maintenance branches into the mainstream(master branch).
 Depending on the workflow it's possible to have maintenance or customer-specific branches along with the master branch. These branches are also called LTS branches.
 Oftentimes the hot fixes go into the branches where the bug was reported and then merged back into mainstream.
@@ -10,7 +10,7 @@ Also this is handy in case of cherry-pick from master into the maintenance branc
 
 ### Installation
 ```
-gem install git-merge
+gem install gitmerge
 ```
 
 ### Usage

@@ -2,16 +2,16 @@
 
 require 'commander/import'
 
-require 'git-merge'
+require 'gitmerge'
 
-program :name, 'git-merge'
+program :name, 'gitmerge'
 program :version, GitMerge::VERSION.to_s
 program :description, 'A helper tool to easily block particular GIT commits during the merge'
 
 global_option('-d', '--debug') { GitMerge::Logger.level = Logger::DEBUG }
 
 command :block do |c|
-  c.syntax = 'git-merge block [options] <commit> [<commit>...]'
+  c.syntax = 'gitmerge block [options] <commit> [<commit>...]'
   c.description = 'Blocks particular commits'
   c.option '-b', '--branch BRANCH', String, 'Branch in which block commits [HEAD by default]'
   c.option '-r', '--repo PATH', String, 'Path to the GIT repository [CWD by default]'
@@ -30,7 +30,7 @@ command :block do |c|
 end
 
 command :merge do |c|
-  c.syntax = 'git-merge merge [options] <head>'
+  c.syntax = 'gitmerge merge [options] <head>'
   c.description = 'Merge head excluding blocked commits'
   c.option '-b', '--branch BRANCH', String, 'Branch into which perform the merge [HEAD by default]'
   c.option '-r', '--repo PATH', String, 'Path to the GIT repository [CWD by default]'

@@ -1,16 +1,16 @@
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
-require 'git-merge/version'
+require 'gitmerge/version'
 
 SEP = "\n"
 
 Gem::Specification.new do |gem|
-  gem.name        = 'git-merge'
+  gem.name        = 'gitmerge'
   gem.version     = GitMerge::VERSION
   gem.license     = 'MIT'
   gem.authors     = ['Dmytro Milinevskyy']
   gem.email       = ['milinevskyy@gmail.com']
-  gem.homepage    = 'http://github.com/niamster/git-merge'
+  gem.homepage    = 'http://github.com/niamster/gitmerge'
   gem.summary     = 'A helper to merge GIT branches.'
   gem.description = 'Simple GIT helper to block undesired commits before merging branches.'
 

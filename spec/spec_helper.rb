@@ -9,7 +9,7 @@ SimpleCov.command_name 'spec'
 
 SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
 
-require 'git-merge'
+require 'gitmerge'
 Dir['./spec/support/*.rb'].map { |f| require f }
 
 RSpec.configure(&:disable_monkey_patching!)

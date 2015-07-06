@@ -89,7 +89,7 @@ module GitMerge
       Logger.info "Working directory #{@repo.path} was updated for manual merge conflict resolution"
       Logger.info "please step into, resolve conflict, stage and commit" \
                   "resolved entries (via `git add` and `git commit`)."
-      Logger.info "Afterwards you might need to run git-merge again to finish the merge."
+      Logger.info "Afterwards you might need to run gitmerge again to finish the merge."
       fail MergeConflict
     end
 
