@@ -78,7 +78,13 @@ module GitMerge
       walker = Rugged::Walker.new(@repo)
       walker.sorting Rugged::SORT_TOPO | Rugged::SORT_REVERSE
       walker.push_range "#{to.target.oid}..#{from.target.oid}"
-      walker.each_oid.to_a
+      exclude = to.log.map { |e| e[:id_new] }
+      diff = []
+      walker.each_oid do |oid|
+        next if exclude.include? oid
+        diff << oid
+      end
+      diff
     end
 
     def merge_info(head, commit)
