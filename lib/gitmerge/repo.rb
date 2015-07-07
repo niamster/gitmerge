@@ -68,7 +68,7 @@ module GitMerge
 
     def lookup_commits(hashes)
       hashes.each_with_object([]) do |hash, commits|
-        commit = @repo.lookup hash
+        commit = @repo.lookup hash rescue nil
         fail InvalidCommit, hash unless commit
         commits << commit
       end

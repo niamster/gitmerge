@@ -50,10 +50,12 @@ module GitMerge
         end
       end
     rescue => e
+      # :nocov:
       Logger.fatal e
       marks.each do |mark, path|
         File.unlink path rescue nil
       end
+      # :nocov:
     end
 
     def mark_merge(commit, index)

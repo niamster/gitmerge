@@ -52,4 +52,52 @@ RSpec.describe GitMerge do
                                                                 ">>>>>>> theirs",
                                                                 ""].join "\n")
   end
+
+  it "fails to prepare for merge conflict resolution in dirty repo" do
+    trepo = GitMerge::Test.mk_test_repo_0
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
+
+    merge = GitMerge::Merge.new repo, branch: 'master'
+
+    expect { merge.merge!('release') }.to raise_error(GitMerge::MergeConflict)
+    expect { merge.merge!('release') }.to raise_error(GitMerge::DirtyIndex)
+  end
+
+  it "fails to start merge if anothe merge is in progress" do
+    trepo = GitMerge::Test.mk_test_repo_0
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
+
+    merge = GitMerge::Merge.new repo, branch: 'master'
+
+    expect { merge.merge!('release') }.to raise_error(GitMerge::MergeConflict)
+    trepo.checkout 'master', strategy: :force
+    expect { merge.merge!('release') }.to raise_error(GitMerge::MergeInProgress)
+  end
+
+  it "fails to block or merge in non-local branch" do
+    trepo = GitMerge::Test.mk_test_repo_0
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
+
+    block = GitMerge::Block.new repo, branch: 'origin/master'
+    expect { block.block! [trepo.tree['release'].first] }.to raise_error(GitMerge::NotLocalHead)
+
+    merge = GitMerge::Merge.new repo, branch: 'origin/master'
+    expect { merge.merge!('release') }.to raise_error(GitMerge::NotLocalHead)
+  end
+
+  it "fails to merge from invalid branch" do
+    trepo = GitMerge::Test.mk_test_repo_0
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
+
+    merge = GitMerge::Merge.new repo, branch: 'master'
+    expect { merge.merge!('xxx') }.to raise_error(GitMerge::InvalidHead)
+  end
+
+  it "fails to block invalid commit" do
+    trepo = GitMerge::Test.mk_test_repo_0
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
+
+    block = GitMerge::Block.new repo, branch: 'master'
+    expect { block.block! ['04d7ab73fe9dba72dbf8e87ae3de6678d41135e0'] }.to raise_error(GitMerge::InvalidCommit)
+  end
 end

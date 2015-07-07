@@ -37,6 +37,10 @@ module GitMerge::Test
       {email: 'test@github.com', name: 'test'}
     end
 
+    def checkout(*args)
+      @repo.checkout(*args)
+    end
+
     private
 
     def __init
