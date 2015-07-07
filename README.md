@@ -1,16 +1,24 @@
+# gitmerge
+
 [![Coverage Status](https://coveralls.io/repos/niamster/gitmerge/badge.svg?branch=master)](https://coveralls.io/r/niamster/gitmerge?branch=master)
 [![Build Status](https://secure.travis-ci.org/niamster/gitmerge.png?branch=master)](http://travis-ci.org/niamster/gitmerge)
 [![Code Climate](https://codeclimate.com/github/niamster/gitmerge/badges/gpa.svg)](https://codeclimate.com/github/niamster/gitmerge)
 
 # About
-gitmerge is a helper utility that allows block particular commits during GIT merge.
-Why one might need that? This is mainly useful when merging maintenance branches into the mainstream(master branch).
+gitmerge is a helper utility that allows to block particular commits during the merge of GIT branches.
+
+Why one might need that? This is mainly useful when merging maintenance branches into the mainstream(master) branch.
+
 Depending on the workflow it's possible to have maintenance or customer-specific branches along with the master branch. These branches are also called LTS branches.
-Oftentimes the hot fixes go into the branches where the bug was reported and then merged back into mainstream.
-General practice is to have have all branches perfectly synchronized with the master,
-i.e. you want to see a clear delta between a particular branch and master to understand whether the branch contains all features and bugfixes.
+
+Oftentimes the hot fixes go into the branches where the bug was reported and then the commit is merged back into the master branch.
+
+General practice is to have all branches perfectly synchronized with the master,
+i.e. you want to see a clear delta between a particular branch and master to understand whether the master contains all features and bugfixes.
+
 However sometimes you don't want particular commits because they are customer-specific and shall not be visible by other users. Or your master branch diverged that much that it requires completely different approach to fix the issue, or even better, the problem is not anymore present there.
-Also this is handy in case of cherry-pick from master into the maintenance branch and thus that commit must be blocked in the branch from where it was picked.
+
+Also in case of cherry-pick from master into the maintenance branch the resulting commit shall be blocked in master.
 
 ### Installation
 ```
@@ -37,6 +45,7 @@ Consult the help for the full list of options.
 
 ### Conflicts
 Gitmerge does not try to resolve merge conflicts but relies on the user(as during normal GIT merge).
+
 Once the conflict is resolved it's probably required to rerun gitmerge to complete initial merge.
 
 # License
