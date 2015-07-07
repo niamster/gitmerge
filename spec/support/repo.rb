@@ -33,6 +33,10 @@ module GitMerge::Test
       blob.content
     end
 
+    def author
+      {email: 'test@github.com', name: 'test'}
+    end
+
     private
 
     def __init
@@ -55,6 +59,8 @@ module GitMerge::Test
     def __commit(target, tree, name, msg)
       options = {}
       options[:tree] = tree
+      options[:author] = author
+      options[:committer] = author
       options[:message] = msg
       options[:parents] = @repo.empty? ? [] : [target].compact
       options[:update_ref] = name

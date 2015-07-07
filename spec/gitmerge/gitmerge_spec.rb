@@ -1,7 +1,7 @@
 RSpec.describe GitMerge do
   it "successfully merges branches withough conflicts" do
     trepo = GitMerge::Test.mk_test_repo_0
-    repo = GitMerge::Repo.new trepo.sandbox
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
 
     merge = GitMerge::Merge.new repo, branch: 'master'
     merge.merge! 'dev'
@@ -13,7 +13,7 @@ RSpec.describe GitMerge do
 
   it "successfully merges branches with blocked conflicts" do
     trepo = GitMerge::Test.mk_test_repo_0
-    repo = GitMerge::Repo.new trepo.sandbox
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
 
     block = GitMerge::Block.new repo, branch: 'master'
     block.block! [trepo.tree['release'].first]
@@ -29,7 +29,7 @@ RSpec.describe GitMerge do
 
   it "does not fail if requested to blocked already blocked commits" do
     trepo = GitMerge::Test.mk_test_repo_0
-    repo = GitMerge::Repo.new trepo.sandbox
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
 
     block = GitMerge::Block.new repo, branch: 'master'
     block.block! [trepo.tree['release'].first]
@@ -40,7 +40,7 @@ RSpec.describe GitMerge do
 
   it "fails to merge branches with conflicts" do
     trepo = GitMerge::Test.mk_test_repo_0
-    repo = GitMerge::Repo.new trepo.sandbox
+    repo = GitMerge::Repo.new trepo.sandbox, trepo.author
 
     merge = GitMerge::Merge.new repo, branch: 'master'
 
