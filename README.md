@@ -1,3 +1,6 @@
+[![Coverage Status](https://coveralls.io/repos/niamster/gitmerge/badge.svg?branch=master)](https://coveralls.io/r/niamster/gitmerge?branch=master)
+[![Build Status](https://secure.travis-ci.org/niamster/gitmerge.png?branch=master)](http://travis-ci.org/niamster/gitmerge)
+
 # About
 gitmerge is a helper utility that allows block particular commits during GIT merge.
 Why one might need that? This is mainly useful when merging maintenance branches into the mainstream(master branch).
