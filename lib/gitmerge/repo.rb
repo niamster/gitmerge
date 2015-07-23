@@ -49,6 +49,7 @@ module GitMerge
     def clean?
       @repo.status do |file, status|
         next if status.include? :worktree_new
+        next if status.include? :ignored
         return false
       end
       true
